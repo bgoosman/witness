@@ -63,6 +63,26 @@
   background: white;
 }
 
+.timeline-footer {
+  border-left: 2px solid black;
+  color: rgba(black, .7);
+	padding: 0 3em 2em 3em;
+  position: relative;
+}
+
+.timeline-footer::after {
+  width: 60px;
+  height: 8px;
+  display: block;
+  top: 1.875rem;
+  position: absolute;
+  left: -32px;
+  content: '';
+  border: 2px solid black;
+  border-radius: 7px;
+  background: white;
+}
+
 .timeline-row {
 	padding: 0 3em 2em 3em;
 	position: relative;

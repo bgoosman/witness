@@ -2,10 +2,13 @@ import { Typography, Grid } from "@material-ui/core";
 import React from "react";
 
 interface TimelineEventData {
-   description: string;
-   youtube: string;
+   city: string;
    date: string;
+   description: string;
    relatedEvents: TimelineEventData[];
+   state: string;
+   timeOfDay: string;
+   youtube: string;
 }
 
 interface Props {
@@ -26,12 +29,18 @@ export const TimelineHeader = (props: TimelineHeaderProps) => (
    </div>
 )
 
+export const TimelineFooter = () => (
+   <div className="timeline-footer">
+      <Typography variant="h2">end results</Typography>
+   </div>
+)
+
 export const TimelineEvent = (props: TimelineEventProps) => {
-   const { youtube, description } = props.event;
+   const { city, description, state, timeOfDay, youtube } = props.event;
 
    return <div className="timeline-event">
-      <iframe width="265" height="149" src={youtube} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-      <Typography variant="body1">{description}</Typography>
+      <iframe width="265" height="149" src={youtube} title="YouTube video" frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      <Typography variant="body1">{description}{timeOfDay && ` // ${timeOfDay}`}{city && ` // ${city}`}{state && ` // ${state}`}</Typography>
    </div>
 }
 
@@ -57,6 +66,7 @@ export const Timeline = (props: Props) => {
                </Grid>
             </div>
          ))}
+         <TimelineFooter />
       </div>
    );
 }
