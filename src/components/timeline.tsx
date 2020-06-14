@@ -1,18 +1,12 @@
+import React from 'react';
+import { Observer } from 'mobx-react';
 import { Typography, Grid } from "@material-ui/core";
-import React from "react";
 
-interface TimelineEventData {
-   city: string;
-   date: string;
-   description: string;
-   relatedEvents: TimelineEventData[];
-   state: string;
-   timeOfDay: string;
-   youtube: string;
-}
+import { TimelineEventData } from '../models/timeline-event';
+import { EventStore } from "../stores/event-store";
 
-interface Props {
-   events: TimelineEventData[];
+interface TimelineProps {
+   eventStore: EventStore;
 }
 
 interface TimelineHeaderProps {
@@ -29,9 +23,13 @@ export const TimelineHeader = (props: TimelineHeaderProps) => (
    </div>
 )
 
-export const TimelineFooter = () => (
+interface TimelineFooterProps {
+   label: string;
+}
+
+export const TimelineFooter = (props: TimelineFooterProps) => (
    <div className="timeline-footer">
-      <Typography variant="h2">end results</Typography>
+      <Typography variant="h2">{props.label}</Typography>
    </div>
 )
 
@@ -44,29 +42,31 @@ export const TimelineEvent = (props: TimelineEventProps) => {
    </div>
 }
 
-export const Timeline = (props: Props) => {
-   const { events } = props;
+export const Timeline = (props: TimelineProps) => {
+   const { eventStore } = props;
 
    return (
-      <div className="timeline">
-         <TimelineHeader resultCount={events.length} />
-         {events.map((event) => (
-            <div className="timeline-row">
-               <Typography variant="h6">{event.date}</Typography>
-               <Grid container spacing={4}>
-                  <Grid item>
-                     <TimelineEvent event={event} />
+      <Observer>
+         {() => <div className="timeline">
+            <TimelineHeader resultCount={eventStore.filteredEvents.length} />
+            {eventStore.filteredEvents.map((event) => (
+               <div className="timeline-row">
+                  <Typography variant="h6">{event.date}</Typography>
+                  <Grid container spacing={4}>
+                     <Grid item>
+                        <TimelineEvent event={event} />
+                     </Grid>
+                     {event.relatedEvents &&
+                        event.relatedEvents.map((relatedEvent) => (
+                           <Grid item>
+                              <TimelineEvent event={relatedEvent} />
+                           </Grid>
+                        ))}
                   </Grid>
-                  {event.relatedEvents &&
-                     event.relatedEvents.map((relatedEvent) => (
-                        <Grid item>
-                           <TimelineEvent event={relatedEvent} />
-                        </Grid>
-                     ))}
-               </Grid>
-            </div>
-         ))}
-         <TimelineFooter />
-      </div>
+               </div>
+            ))}
+            <TimelineFooter label="end of results" />
+         </div>}
+      </Observer>
    );
 }

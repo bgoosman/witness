@@ -1,11 +1,14 @@
 import React from 'react';
-import './App.css';
+
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import CssBaseline from '@material-ui/core/CssBaseline';
+
+import './App.css';
 import { WitnessBanner } from './components/witness-banner';
 import { Filters } from './components/filters';
 import { Timeline } from './components/timeline';
+import { RootStore } from './stores/root-store';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -13,10 +16,10 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const events = require('./events.json');
-
 function App() {
   const classes = useStyles();
+  const rootStore = new RootStore();
+  const { eventStore } = rootStore;
 
   return (
     <React.Fragment>
@@ -25,10 +28,10 @@ function App() {
         <Grid container>
           <Grid item>
             <WitnessBanner />
-            <Filters />
+            <Filters eventStore={eventStore} />
           </Grid>
           <Grid item>
-            <Timeline events={events} />
+            <Timeline eventStore={eventStore} />
           </Grid>
         </Grid>
       </div>
