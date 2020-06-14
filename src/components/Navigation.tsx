@@ -2,15 +2,6 @@ import React from "react"
 import { AppBar, Toolbar, Button } from "@material-ui/core";
 
 export const Navigation = () => {
-   const pages = [
-      {
-         label: 'HOME'
-      },
-      {
-         label: 'ABOUT' 
-      }
-   ]
-
    return (
       <AppBar position="static">
          <Toolbar>

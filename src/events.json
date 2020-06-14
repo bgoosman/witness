@@ -1,0 +1,30 @@
+[
+   {
+      "sourceLink": "https://twitter.com/greg_doucette/status/1266565461937917953",
+      "date": "2020-05-29",
+      "timeOfDay": "Evening",
+      "city": "Houston",
+      "state": "TX",
+      "description": "A policeman riding a horse tramples peaceful protestor, in an instance of police brutality.",
+      "youtube": "https://www.youtube.com/embed/F4_yJjdsJ_0"
+   },
+   {
+      "sourceLink": "https://twitter.com/greg_doucette/status/1266565461937917953",
+      "date": "2020-05-29",
+      "timeOfDay": "Night",
+      "city": "New York City",
+      "state": "NY",
+      "description": "Police shove an unarmed woman to the curb which prompted a seizure that put her in the emergency room, in an instance of police brutality.",
+      "youtube": "https://www.youtube.com/embed/suTGneu7tZU",
+      "relatedEvents": [
+         {
+            "description": "A second angle.",
+            "youtube": "https://www.youtube.com/embed/dwz1DXG0gPU"
+         },
+         {
+            "description": "A third angle.",
+            "youtube": "https://www.youtube.com/embed/7QCi7X15o-M"
+         }
+      ]
+   }
+]
