@@ -1,4 +1,5 @@
 export interface TimelineEventData {
+   id: string;
    city: string;
    date: string;
    description: string;
