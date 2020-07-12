@@ -1,4 +1,9 @@
 import React from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom";
 
 import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
@@ -9,6 +14,8 @@ import { WitnessBanner } from './components/witness-banner';
 import { Filters } from './components/filters';
 import { Timeline } from './components/timeline';
 import { RootStore } from './stores/root-store';
+import { Navigation } from './components/navigation';
+import { AboutPage } from './components/about';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -22,20 +29,34 @@ function App() {
   const { eventStore } = rootStore;
 
   return (
-    <React.Fragment>
+    <Router>
       <CssBaseline />
       <div className={classes.root}>
         <Grid container>
-          <Grid item>
-            <WitnessBanner />
-            <Filters eventStore={eventStore} />
-          </Grid>
-          <Grid item>
-            <Timeline eventStore={eventStore} />
-          </Grid>
+          <Switch>
+            <Route path="/about">
+              <Grid item>
+                <WitnessBanner />
+              </Grid>
+              <Grid item>
+                <Navigation />
+                <AboutPage />
+              </Grid>
+            </Route>
+            <Route path="/">
+              <Grid item>
+                <WitnessBanner />
+                <Filters eventStore={eventStore} />
+              </Grid>
+              <Grid item>
+                <Navigation />
+                <Timeline eventStore={eventStore} />
+              </Grid>
+            </Route>
+          </Switch>
         </Grid>
       </div>
-    </React.Fragment>
+    </Router>
   );
 }
 

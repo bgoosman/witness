@@ -1,15 +1,15 @@
 import React from "react"
 import { AppBar, Toolbar, Button } from "@material-ui/core";
+import {
+  Link
+} from "react-router-dom";
 
 export const Navigation = () => {
    return (
       <AppBar position="static">
          <Toolbar>
-            <Button>HOME</Button>
-            <Button>ABOUT</Button>
-            <Button>SUBMIT</Button>
-            <Button>CONTACT</Button>
-            <Button>SUPPORT</Button>
+            <Link to="/">Home</Link>
+            <Link to="/about">About</Link>
          </Toolbar>
       </AppBar>
    );
