@@ -1,7 +1,21 @@
 import { action, computed, observable } from 'mobx';
+import shortid from 'shortid';
 
 import { TimelineEventData } from '../models/timeline-event';
-const events = require('../events.json');
+
+// TODO: When there is a real database storing events, they should
+// have ids by default. For now, generate hashes of objects if there
+// is no id.
+function addIds(events: any[]): TimelineEventData[] {
+   return events.map((event) => {
+      return Object.assign({}, event, {
+         id: event.id || shortid.generate(),
+         relatedEvents: event.relatedEvents && addIds(event.relatedEvents),
+      });
+   });
+}
+
+const events = addIds(require('../events.json'));
 
 export class EventStore {
    @observable searchText: string = '';

@@ -50,7 +50,7 @@ export const Timeline = (props: TimelineProps) => {
          {() => <div className="timeline">
             <TimelineHeader resultCount={eventStore.filteredEvents.length} />
             {eventStore.filteredEvents.map((event) => (
-               <div className="timeline-row">
+               <div className="timeline-row" key={event.id}>
                   <Typography variant="h6">{event.date}</Typography>
                   <Grid container spacing={4}>
                      <Grid item>
@@ -58,7 +58,7 @@ export const Timeline = (props: TimelineProps) => {
                      </Grid>
                      {event.relatedEvents &&
                         event.relatedEvents.map((relatedEvent) => (
-                           <Grid item>
+                           <Grid item key={relatedEvent.id}>
                               <TimelineEvent event={relatedEvent} />
                            </Grid>
                         ))}
