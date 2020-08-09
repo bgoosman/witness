@@ -13,8 +13,13 @@ import { AboutPage } from './components/about';
 import { AppLayout } from './components/app-layout';
 import { TagEventPage } from './components/tag-event';
 
-function App() {
-  const rootStore = new RootStore();
+interface AppProps {
+  awsApiKey?: string;
+}
+
+function App(props: AppProps) {
+  const { awsApiKey } = props;
+  const rootStore = new RootStore(awsApiKey);
   const { eventStore } = rootStore;
 
   return (

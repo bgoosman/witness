@@ -19,6 +19,11 @@ const events = addIds(require('../events.json'));
 
 export class EventStore {
    @observable searchText: string = '';
+   awsApiKey?: string;
+
+   constructor(awsApiKey?: string) {
+      this.awsApiKey = awsApiKey;
+   }
 
    @computed({ keepAlive: true })
    get filteredEvents(): Array<TimelineEventData> {
@@ -43,7 +48,7 @@ export class EventStore {
    getUntaggedEvent() {
       return fetch('https://omswms4k5g.execute-api.us-east-1.amazonaws.com/default/getUntaggedWitnessLibraryEvent', {
          headers: {
-            'x-api-key': 'PQShIjIgMb27ZTlFXsus21BJbSiyeIXh1vLe6sOm'
+            'x-api-key': this.awsApiKey || ''
          }
       }).then((response) => response.json());
    }
@@ -55,7 +60,7 @@ export class EventStore {
          method: 'PUT',
          headers: {
             'Content-Type': 'application/json',
-            'x-api-key': 'PQShIjIgMb27ZTlFXsus21BJbSiyeIXh1vLe6sOm'
+            'x-api-key': this.awsApiKey || ''
          },
          body: JSON.stringify(event)
       }).then((data) => {
