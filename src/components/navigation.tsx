@@ -32,6 +32,7 @@ export const Navigation = () => {
          <Toolbar disableGutters={true}>
             <MyLink to="/">home</MyLink>
             <MyLink to="/about">about</MyLink>
+            <MyLink to="/tag">tag</MyLink>
          </Toolbar>
       </AppBar>
    );

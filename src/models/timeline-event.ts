@@ -1,10 +1,14 @@
 export interface TimelineEventData {
    id: string;
+   groupId: string;
+   doucetteId: string;
    city: string;
-   date: string;
-   description: string;
-   relatedEvents: TimelineEventData[];
    state: string;
+   date: string;
    timeOfDay: string;
+   description: string;
+   relatedEvents?: TimelineEventData[];
+   sourceLink: string;
    youtube: string;
+   tagged: boolean;
 }

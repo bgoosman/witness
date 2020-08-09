@@ -25,7 +25,8 @@ export class EventStore {
       let result = events;
       if (this.searchText) {
          result = events.filter((event: TimelineEventData) => {
-            const allEvents = [event].concat(event.relatedEvents);
+            const relatedEvents = event.relatedEvents || [];
+            const allEvents = [event].concat(relatedEvents);
             return allEvents.some((event: TimelineEventData) =>
                event.description.includes(this.searchText)
             )
@@ -37,5 +38,30 @@ export class EventStore {
    @action
    setSearchText(text: string): void {
       this.searchText = text;
+   }
+
+   getUntaggedEvent() {
+      return fetch('https://omswms4k5g.execute-api.us-east-1.amazonaws.com/default/getUntaggedWitnessLibraryEvent', {
+         headers: {
+            'x-api-key': 'PQShIjIgMb27ZTlFXsus21BJbSiyeIXh1vLe6sOm'
+         }
+      }).then((response) => response.json());
+   }
+
+   putEvent(event: TimelineEventData) {
+      console.log('putting new event');
+      event.tagged = true;
+      return fetch('https://5hrmoaurqi.execute-api.us-east-1.amazonaws.com/default/putWitnessLibraryEvent', {
+         method: 'PUT',
+         headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': 'PQShIjIgMb27ZTlFXsus21BJbSiyeIXh1vLe6sOm'
+         },
+         body: JSON.stringify(event)
+      }).then((data) => {
+         console.log('request succeeded', data);
+      }).catch((error) => {
+         console.log('request failed', error);
+      });
    }
 }

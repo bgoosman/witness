@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Observer } from 'mobx-react';
 import { Typography, Grid } from "@material-ui/core";
+import fetchJsonp from 'fetch-jsonp';
 
 import { TimelineEventData } from '../models/timeline-event';
 import { EventStore } from "../stores/event-store";
+
+interface Twitter {
+   html: string;
+}
 
 interface TimelineProps {
    eventStore: EventStore;
@@ -34,11 +39,31 @@ export const TimelineFooter = (props: TimelineFooterProps) => (
 )
 
 export const TimelineEvent = (props: TimelineEventProps) => {
-   const { city, description, state, timeOfDay, youtube } = props.event;
+   const { sourceLink } = props.event;
+   const [twitter, setTwitter] = useState<Twitter | undefined>(undefined);
+
+   const getTwitter = async (sourceLink: string) => {
+      const url = `https://publish.twitter.com/oembed?url=${sourceLink}`;
+      try {
+         const response = await fetchJsonp(url);
+         const json = await response.json();
+         console.log(json)
+         setTwitter(json);
+      } catch(err) {
+         setTwitter({
+            'html': ''
+         });
+         console.log(err);
+      }
+   }
+   useEffect(() => {
+      if (!twitter) {
+         getTwitter(sourceLink);
+      }
+   }, []);
 
    return <div className="timeline-event">
-      <iframe width="265" height="149" src={youtube} title="YouTube video" frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-      <Typography variant="body1">{description}{timeOfDay && ` // ${timeOfDay}`}{city && ` // ${city}`}{state && ` // ${state}`}</Typography>
+      <div dangerouslySetInnerHTML={{'__html': (twitter && twitter.html) || ''}}></div>
    </div>
 }
 
