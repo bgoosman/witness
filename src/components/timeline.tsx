@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Observer } from 'mobx-react';
-import { Typography, Grid } from "@material-ui/core";
+import { Typography, Grid, makeStyles } from "@material-ui/core";
 import fetchJsonp from 'fetch-jsonp';
+import LazyLoad from 'react-lazyload';
 
 import { TimelineEventData } from '../models/timeline-event';
 import { EventStore } from "../stores/event-store";
@@ -38,33 +39,51 @@ export const TimelineFooter = (props: TimelineFooterProps) => (
    </div>
 )
 
+interface WidgetsJs {
+   load: () => any;
+   createTweet: (id: string, container: HTMLElement | null, options: any) => any;
+}
+
+interface TwitterJs {
+   widgets: WidgetsJs;
+}
+
+declare global {
+   var twttr: TwitterJs;
+   var document: Document;
+}
+
 export const TimelineEvent = (props: TimelineEventProps) => {
    const { sourceLink } = props.event;
-   const [twitter, setTwitter] = useState<Twitter | undefined>(undefined);
+   const splitLink = sourceLink.split('/');
+   const tweetId = splitLink[splitLink.length - 1];
 
-   const getTwitter = async (sourceLink: string) => {
-      const url = `https://publish.twitter.com/oembed?url=${sourceLink}`;
-      try {
-         const response = await fetchJsonp(url);
-         const json = await response.json();
-         console.log(json)
-         setTwitter(json);
-      } catch(err) {
-         setTwitter({
-            'html': ''
-         });
-         console.log(err);
-      }
-   }
    useEffect(() => {
-      if (!twitter) {
-         getTwitter(sourceLink);
-      }
+      twttr.widgets.createTweet(
+         tweetId,
+         document.getElementById(`tweet-${tweetId}`),
+         {
+            conversation: 'none'
+         }
+      ).then(() => {
+         console.log(`tweet-${tweetId} displayed`);
+      });
    }, []);
 
    return <div className="timeline-event">
-      <div dangerouslySetInnerHTML={{'__html': (twitter && twitter.html) || ''}}></div>
+      <div id={`tweet-${tweetId}`}></div>
    </div>
+}
+
+export const YouTubeEvent = (props: TimelineEventProps) => {
+   const { event } = props;
+   const { youtube, description } = event;
+
+   return <div className="timeline-event">
+      <iframe width="350" height="196" src={event.youtube} frameBorder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      <Typography variant="body1">{description}</Typography>
+   </div>
+
 }
 
 export const Timeline = (props: TimelineProps) => {
@@ -72,22 +91,25 @@ export const Timeline = (props: TimelineProps) => {
 
    return (
       <Observer>
-         {() => <div className="timeline">
+         {() => <div className={`timeline`}>
             <TimelineHeader resultCount={eventStore.filteredEvents.length} />
             {eventStore.filteredEvents.map((event) => (
                <div className="timeline-row" key={event.id}>
                   <Typography variant="h6">{event.date}</Typography>
-                  <Grid container spacing={4}>
-                     <Grid item>
-                        <TimelineEvent event={event} />
+                  <LazyLoad height={200} once>
+                     <Grid container spacing={4}>
+                        <Grid item>
+                           {event.sourceLink && !event.youtube && <TimelineEvent event={event} />}
+                           {event.sourceLink && event.youtube && <YouTubeEvent event={event} />}
+                        </Grid>
+                        {event.relatedEvents &&
+                           event.relatedEvents.map((relatedEvent) => (
+                              <Grid item key={relatedEvent.id}>
+                                 <TimelineEvent event={relatedEvent} />
+                              </Grid>
+                           ))}
                      </Grid>
-                     {event.relatedEvents &&
-                        event.relatedEvents.map((relatedEvent) => (
-                           <Grid item key={relatedEvent.id}>
-                              <TimelineEvent event={relatedEvent} />
-                           </Grid>
-                        ))}
-                  </Grid>
+                  </LazyLoad>
                </div>
             ))}
             <TimelineFooter label="end of results" />

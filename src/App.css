@@ -103,5 +103,14 @@
 }
 
 .timeline-event {
-  width: 254px;
+  width: 350px;
+  margin-top: 10px;
+}
+
+.timeline-event p {
+  word-break: break-all;
+}
+
+.twitter-tweet {
+  margin: 0 !important;
 }
