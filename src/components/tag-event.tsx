@@ -96,6 +96,15 @@ export const TagEventPage = (props: TagEventPageProps) => {
          <div className={classes.paper}>
             <form onSubmit={handleSubmit} className={classes.form} noValidate>
                <TextField
+                  name='sourceLink'
+                  label='Twitter Link'
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  onChange={handleInputChange}
+                  value={values.sourceLink}
+               />
+               <TextField
                   name='id'
                   label='Id'
                   disabled
@@ -169,15 +178,6 @@ export const TagEventPage = (props: TagEventPageProps) => {
                   variant="outlined"
                   onChange={handleInputChange}
                   value={values.description}
-               />
-               <TextField
-                  name='sourceLink'
-                  label='Twitter Link'
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.sourceLink}
                />
                <TextField
                   name='youtube'
