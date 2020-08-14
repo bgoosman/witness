@@ -7,7 +7,10 @@ import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App awsApiKey={process.env.REACT_APP_LAMBDA_API_KEY} />
+    <App
+      awsApiKey={process.env.REACT_APP_LAMBDA_API_KEY}
+      clientId={process.env.REACT_APP_CLIENT_ID}
+    />
   </React.StrictMode>,
   document.getElementById('root')
 );

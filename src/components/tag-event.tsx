@@ -1,8 +1,9 @@
 import React, { useState, useEffect, SyntheticEvent } from "react";
-import { TextField, Button, Container, Typography } from "@material-ui/core";
+import { TextField, Button, Container, Typography, IconButton } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import { TimelineEventData } from "../models/timeline-event";
 import { EventStore } from "../stores/event-store";
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -46,27 +47,38 @@ interface FormTarget {
 export const TagEventPage = (props: TagEventPageProps) => {
    const { eventStore } = props;
    const classes = useStyles();
+   const [loading, setLoading] = useState(true);
+   const [saving, setSaving] = useState(false);
 
    const handleInputChange = (e: FormEvent) => {
       const { name, value } = e.target;
       setValues({ ...values, [name]: value });
    }
 
+   const handleSkip = (event: SyntheticEvent) => {
+      fetchUntaggedEvent();
+   }
+
    const fetchUntaggedEvent = () => {
+      setLoading(true);
       eventStore.getUntaggedEvent().then((event: TimelineEventData) => {
          if (event) {
             setValues(event);
          } else {
             setValues(undefined);
          }
+      }).finally(() => {
+         setLoading(false);
       });
    }
 
    const handleSubmit = (event: SyntheticEvent) => {
-      console.log('handle submit');
+      setSaving(true);
       eventStore.putEvent(values).then(() => {
-         console.log('fetching new event');
+         setSaving(false);
          fetchUntaggedEvent();
+      }).finally(() => {
+         setSaving(false);
       });
       event.preventDefault();
    }
@@ -95,12 +107,21 @@ export const TagEventPage = (props: TagEventPageProps) => {
          {values != undefined &&
          <div className={classes.paper}>
             <form onSubmit={handleSubmit} className={classes.form} noValidate>
+               <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<RefreshIcon />}
+                  onClick={handleSkip}
+               >
+                  Skip
+               </Button>
                <TextField
                   name='sourceLink'
                   label='Twitter Link'
                   fullWidth
                   margin="normal"
                   variant="outlined"
+                  disabled={loading || saving}
                   onChange={handleInputChange}
                   value={values.sourceLink}
                />
@@ -127,6 +148,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='groupId'
                   label='Group Id'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -136,6 +158,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='city'
                   label='City'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -145,6 +168,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='state'
                   label='State'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -154,6 +178,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='date'
                   label='Date'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -163,6 +188,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='timeOfDay'
                   label='Time of Day'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -172,6 +198,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='description'
                   label='Description'
+                  disabled={loading || saving}
                   fullWidth
                   multiline
                   margin="normal"
@@ -182,6 +209,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                <TextField
                   name='youtube'
                   label='YouTube Embed Link'
+                  disabled={loading || saving}
                   fullWidth
                   margin="normal"
                   variant="outlined"
@@ -190,6 +218,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
                />
                <Button
                   type="submit"
+                  disabled={loading || saving}
                   fullWidth
                   variant="contained"
                   color="primary"

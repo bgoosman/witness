@@ -15,11 +15,13 @@ import { TagEventPage } from './components/tag-event';
 
 interface AppProps {
   awsApiKey?: string;
+  clientId?: string;
 }
 
 function App(props: AppProps) {
-  const { awsApiKey } = props;
-  const rootStore = new RootStore(awsApiKey);
+  const { awsApiKey, clientId } = props;
+
+  const rootStore = new RootStore(awsApiKey, clientId);
   const { eventStore } = rootStore;
 
   return (

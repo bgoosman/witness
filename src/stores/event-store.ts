@@ -20,9 +20,11 @@ const events = addIds(require('../events.json'));
 export class EventStore {
    @observable searchText: string = '';
    awsApiKey?: string;
+   clientId?: string;
 
-   constructor(awsApiKey?: string) {
+   constructor(awsApiKey?: string, clientId?: string) {
       this.awsApiKey = awsApiKey;
+      this.clientId = clientId;
    }
 
    @computed({ keepAlive: true })
@@ -50,7 +52,11 @@ export class EventStore {
          headers: {
             'x-api-key': this.awsApiKey || ''
          }
-      }).then((response) => response.json());
+      })
+      .then((response) => response.json())
+      .catch((error) => {
+         console.error(error);
+      });
    }
 
    putEvent(event: TimelineEventData) {
