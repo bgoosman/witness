@@ -31,6 +31,20 @@ const useStyles = makeStyles((theme) => ({
    }
 }));
 
+const defaultEvent: TimelineEventData = {
+   id: '',
+   doucetteId: '',
+   groupId: '',
+   city: '',
+   state: '',
+   date: '',
+   timeOfDay: '',
+   description: '',
+   sourceLink: '',
+   youtube: '',
+   tagged: false
+};
+
 interface TagEventPageProps {
    eventStore: EventStore;
 }
@@ -48,7 +62,11 @@ export const TagEventPage = (props: TagEventPageProps) => {
    const { eventStore } = props;
    const classes = useStyles();
    const [loading, setLoading] = useState(true);
-   const [saving, setSaving] = useState(false);
+   const [values, setValues] = useState<TimelineEventData>(defaultEvent);
+
+   useEffect(() => {
+      fetchUntaggedEvent();
+   }, []);
 
    const handleInputChange = (e: FormEvent) => {
       const { name, value } = e.target;
@@ -65,7 +83,7 @@ export const TagEventPage = (props: TagEventPageProps) => {
          if (event) {
             setValues(event);
          } else {
-            setValues(undefined);
+            setValues(defaultEvent);
          }
       }).finally(() => {
          setLoading(false);
@@ -73,161 +91,142 @@ export const TagEventPage = (props: TagEventPageProps) => {
    }
 
    const handleSubmit = (event: SyntheticEvent) => {
-      setSaving(true);
+      setLoading(true);
       eventStore.putEvent(values).then(() => {
-         setSaving(false);
          fetchUntaggedEvent();
       }).finally(() => {
-         setSaving(false);
+         setLoading(false);
       });
       event.preventDefault();
    }
 
-   const defaultEvent: TimelineEventData = {
-      id: '',
-      doucetteId: '',
-      groupId: '',
-      city: '',
-      state: '',
-      date: '',
-      timeOfDay: '',
-      description: '',
-      sourceLink: '',
-      youtube: '',
-      tagged: false
-   };
-   const [values, setValues] = useState<TimelineEventData | undefined>(defaultEvent);
-
-   useEffect(() => {
-      fetchUntaggedEvent();
-   }, []);
-
    return (
       <Container component="main" maxWidth="xs">
-         {values != undefined &&
-         <div className={classes.paper}>
-            <form onSubmit={handleSubmit} className={classes.form} noValidate>
-               <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<RefreshIcon />}
-                  onClick={handleSkip}
-               >
-                  Skip
-               </Button>
-               <TextField
-                  name='sourceLink'
-                  label='Twitter Link'
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  disabled={loading || saving}
-                  onChange={handleInputChange}
-                  value={values.sourceLink}
-               />
-               <TextField
-                  name='id'
-                  label='Id'
-                  disabled
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.id}
-               />
-               <TextField
-                  name='doucetteId'
-                  label='Doucette Id'
-                  disabled
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.doucetteId}
-               />
-               <TextField
-                  name='groupId'
-                  label='Group Id'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.groupId}
-               />
-               <TextField
-                  name='city'
-                  label='City'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.city}
-               />
-               <TextField
-                  name='state'
-                  label='State'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.state}
-               />
-               <TextField
-                  name='date'
-                  label='Date'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.date}
-               />
-               <TextField
-                  name='timeOfDay'
-                  label='Time of Day'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.timeOfDay}
-               />
-               <TextField
-                  name='description'
-                  label='Description'
-                  disabled={loading || saving}
-                  fullWidth
-                  multiline
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.description}
-               />
-               <TextField
-                  name='youtube'
-                  label='YouTube Embed Link'
-                  disabled={loading || saving}
-                  fullWidth
-                  margin="normal"
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  value={values.youtube}
-               />
-               <Button
-                  type="submit"
-                  disabled={loading || saving}
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-               >
-                  Save
-               </Button>
-            </form>
-         </div>}
+         {values.id != '' &&
+            <div className={classes.paper}>
+               <form onSubmit={handleSubmit} className={classes.form} noValidate>
+                  <Button
+                     variant="outlined"
+                     color="primary"
+                     startIcon={<RefreshIcon />}
+                     onClick={handleSkip}
+                  >
+                     Skip
+                  </Button>
+                  <TextField
+                     name='sourceLink'
+                     label='Twitter Link'
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     disabled={loading}
+                     onChange={handleInputChange}
+                     value={values.sourceLink}
+                  />
+                  <TextField
+                     name='id'
+                     label='Id'
+                     disabled
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.id}
+                  />
+                  <TextField
+                     name='doucetteId'
+                     label='Doucette Id'
+                     disabled
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.doucetteId}
+                  />
+                  <TextField
+                     name='groupId'
+                     label='Group Id'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.groupId}
+                  />
+                  <TextField
+                     name='city'
+                     label='City'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.city}
+                  />
+                  <TextField
+                     name='state'
+                     label='State'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.state}
+                  />
+                  <TextField
+                     name='date'
+                     label='Date'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.date}
+                  />
+                  <TextField
+                     name='timeOfDay'
+                     label='Time of Day'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.timeOfDay}
+                  />
+                  <TextField
+                     name='description'
+                     label='Description'
+                     disabled={loading}
+                     fullWidth
+                     multiline
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.description}
+                  />
+                  <TextField
+                     name='youtube'
+                     label='YouTube Embed Link'
+                     disabled={loading}
+                     fullWidth
+                     margin="normal"
+                     variant="outlined"
+                     onChange={handleInputChange}
+                     value={values.youtube}
+                  />
+                  <Button
+                     type="submit"
+                     disabled={loading}
+                     fullWidth
+                     variant="contained"
+                     color="primary"
+                     className={classes.submit}
+                  >
+                     Save
+                  </Button>
+               </form>
+            </div>
+         }
          {values == undefined && <Typography>There are no events to tag!</Typography>}
       </Container>
    );

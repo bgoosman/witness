@@ -59,8 +59,10 @@ export class EventStore {
       });
    }
 
-   putEvent(event: TimelineEventData) {
-      console.log('putting new event');
+   putEvent(event?: TimelineEventData) {
+      if (!event)
+         return new Promise(() => {});
+      console.log('putting new event', event);
       event.tagged = true;
       return fetch('https://5hrmoaurqi.execute-api.us-east-1.amazonaws.com/default/putWitnessLibraryEvent', {
          method: 'PUT',
