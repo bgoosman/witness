@@ -1,3 +1,4 @@
+import { Dayjs } from 'dayjs';
 export interface TimelineEventData {
    id: string;
    groupId: string;

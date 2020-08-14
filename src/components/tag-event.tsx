@@ -4,6 +4,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import { TimelineEventData } from "../models/timeline-event";
 import { EventStore } from "../stores/event-store";
 import RefreshIcon from '@material-ui/icons/Refresh';
+import DateFnsUtils from '@date-io/dayjs';
+import {
+   KeyboardTimePicker,
+   KeyboardDatePicker,
+   MuiPickersUtilsProvider,
+ } from '@material-ui/pickers';
+import { MaterialUiPickersDate } from "@material-ui/pickers/typings/date";
+import dayjs, { Dayjs } from 'dayjs';
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -63,6 +71,8 @@ export const TagEventPage = (props: TagEventPageProps) => {
    const classes = useStyles();
    const [loading, setLoading] = useState(true);
    const [values, setValues] = useState<TimelineEventData>(defaultEvent);
+   const [selectedDate, setSelectedDate] = useState<MaterialUiPickersDate | null>(null);
+   const [selectedTime, setSelectedTime] = useState<MaterialUiPickersDate | null>(null);
 
    useEffect(() => {
       fetchUntaggedEvent();
@@ -81,6 +91,16 @@ export const TagEventPage = (props: TagEventPageProps) => {
       setLoading(true);
       eventStore.getUntaggedEvent().then((event: TimelineEventData) => {
          if (event) {
+            if (event.date !== '') {
+               setSelectedDate(dayjs(event.date));
+            } else {
+               setSelectedDate(null);
+            }
+            if (event.timeOfDay !== '') {
+               setSelectedTime(dayjs(event.timeOfDay));
+            } else {
+               setSelectedTime(null);
+            }
             setValues(event);
          } else {
             setValues(defaultEvent);
@@ -90,13 +110,30 @@ export const TagEventPage = (props: TagEventPageProps) => {
       });
    }
 
+   const handleDateChange = (date: MaterialUiPickersDate) => {
+      if (date) {
+         setSelectedDate(date);
+         values.date = date.toString();
+         setValues(values);
+      }
+   };
+
+   const handleTimeChange = (time: MaterialUiPickersDate) => {
+      if (time) {
+         setSelectedTime(time);
+         values.timeOfDay = time.toString();
+         setValues(values);
+      }
+   };
+
    const handleSubmit = (event: SyntheticEvent) => {
       setLoading(true);
-      eventStore.putEvent(values).then(() => {
-         fetchUntaggedEvent();
-      }).finally(() => {
-         setLoading(false);
-      });
+      console.log(values);
+      // eventStore.putEvent(values).then(() => {
+      //    fetchUntaggedEvent();
+      // }).finally(() => {
+      //    setLoading(false);
+      // });
       event.preventDefault();
    }
 
@@ -173,26 +210,36 @@ export const TagEventPage = (props: TagEventPageProps) => {
                      onChange={handleInputChange}
                      value={values.state}
                   />
-                  <TextField
-                     name='date'
-                     label='Date'
-                     disabled={loading}
-                     fullWidth
-                     margin="normal"
-                     variant="outlined"
-                     onChange={handleInputChange}
-                     value={values.date}
-                  />
-                  <TextField
-                     name='timeOfDay'
-                     label='Time of Day'
-                     disabled={loading}
-                     fullWidth
-                     margin="normal"
-                     variant="outlined"
-                     onChange={handleInputChange}
-                     value={values.timeOfDay}
-                  />
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                     <KeyboardDatePicker
+                        margin="normal"
+                        id="date-picker-dialog"
+                        disabled={loading}
+                        fullWidth
+                        format="MMMM D, YYYY"
+                        label="Date"
+                        defaultValue=""
+                        value={selectedDate}
+                        required={true}
+                        onChange={handleDateChange}
+                        KeyboardButtonProps={{
+                           'aria-label': 'change date',
+                        }}
+                     />
+                     <KeyboardTimePicker
+                        margin="normal"
+                        id="time-picker"
+                        disabled={loading}
+                        label="Time"
+                        value={selectedTime}
+                        onChange={handleTimeChange}
+                        fullWidth
+                        required
+                        KeyboardButtonProps={{
+                           'aria-label': 'change time',
+                        }}
+                     />
+                  </MuiPickersUtilsProvider>
                   <TextField
                      name='description'
                      label='Description'
