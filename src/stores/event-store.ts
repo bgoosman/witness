@@ -59,7 +59,7 @@ export class EventStore {
   loadAllEvents() {
     fetch(`${this.apiHost}/dev/events`, {
       headers: {
-        ...this.getAuthHeaders,
+        ...this.getAuthHeaders(),
       },
     })
       .then((response) => response.json())
@@ -74,7 +74,7 @@ export class EventStore {
   getUntaggedEvent() {
     return fetch(`${this.apiHost}/dev/events/random-untagged`, {
       headers: {
-        ...this.getAuthHeaders,
+        ...this.getAuthHeaders(),
       },
     })
       .then((response) => response.json())
