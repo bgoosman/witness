@@ -77,14 +77,14 @@ export const TimelineEvent = (props: TimelineEventProps) => {
 
 export const YouTubeEvent = (props: TimelineEventProps) => {
   const { event } = props;
-  const { youtube, description } = event;
+  const { youtubeEmbedLink, description } = event;
 
   return (
     <div className="timeline-event">
       <iframe
         width="350"
         height="196"
-        src={event.youtube}
+        src={event.youtubeEmbedLink}
         frameBorder="0"
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
       ></iframe>
@@ -101,27 +101,25 @@ export const Timeline = (props: TimelineProps) => {
       {() => (
         <div className={`timeline`}>
           <TimelineHeader resultCount={eventStore.filteredEvents.length} />
-          {eventStore.filteredEvents.map((event) => (
-            <div className="timeline-row" key={event.id}>
-              <Typography variant="h6">{event.date}</Typography>
-              <LazyLoad height={200} once>
-                <Grid container spacing={4}>
-                  <Grid item>
-                    {event.sourceLink && !event.youtube && (
-                      <TimelineEvent event={event} />
-                    )}
-                    {event.sourceLink && event.youtube && (
-                      <YouTubeEvent event={event} />
-                    )}
-                  </Grid>
-                  {event.relatedEvents &&
-                    event.relatedEvents.map((relatedEvent) => (
-                      <Grid item key={relatedEvent.id}>
-                        <TimelineEvent event={relatedEvent} />
+          {eventStore.groupedEvents.map((group) => (
+            <div className="timeline-row" key={group.date}>
+              <Typography variant="h6">{group.date}</Typography>
+              {group.events.map((event) => (
+                <React.Fragment key={`${group.date}-${event.id}`}>
+                  <LazyLoad height={200} once>
+                    <Grid container spacing={4}>
+                      <Grid item>
+                        {event.sourceLink && !event.youtubeEmbedLink && (
+                          <TimelineEvent event={event} />
+                        )}
+                        {event.sourceLink && event.youtubeEmbedLink && (
+                          <YouTubeEvent event={event} />
+                        )}
                       </Grid>
-                    ))}
-                </Grid>
-              </LazyLoad>
+                    </Grid>
+                  </LazyLoad>
+                </React.Fragment>
+              ))}
             </div>
           ))}
           <TimelineFooter label="end of results" />

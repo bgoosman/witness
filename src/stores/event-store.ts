@@ -2,6 +2,7 @@ import { action, computed, observable } from "mobx";
 import shortid from "shortid";
 
 import { TimelineEventData } from "../models/timeline-event";
+import { TimelineEvent } from "../components/timeline";
 
 // TODO: When there is a real database storing events, they should
 // have ids by default. For now, generate hashes of objects if there
@@ -17,6 +18,11 @@ function addIds(events: any[]): TimelineEventData[] {
 
 const events = addIds(require("../events.json"));
 
+interface TimelineGroup {
+  date: string;
+  events: Array<TimelineEventData>;
+}
+
 export class EventStore {
   @observable searchText: string = "";
   @observable allEvents: Array<TimelineEventData> = [];
@@ -30,15 +36,33 @@ export class EventStore {
   get filteredEvents(): Array<TimelineEventData> {
     let result = this.allEvents;
     if (this.searchText) {
-      result = events.filter((event: TimelineEventData) => {
-        const relatedEvents = event.relatedEvents || [];
-        const allEvents = [event].concat(relatedEvents);
-        return allEvents.some((event: TimelineEventData) =>
-          event.description.includes(this.searchText)
-        );
-      });
+      result = events.filter((event: TimelineEventData) =>
+        event.description.includes(this.searchText)
+      );
     }
     return result;
+  }
+
+  @computed({ keepAlive: true })
+  get groupedEvents(): Array<TimelineGroup> {
+    const filtered = this.filteredEvents;
+    let group: TimelineGroup = {
+      date: "",
+      events: [],
+    };
+    const groups: Array<TimelineGroup> = [];
+    filtered.forEach((event) => {
+      if (event.date != group.date) {
+        group = {
+          date: event.date,
+          events: [event],
+        };
+        groups.push(group);
+      } else {
+        group.events.push(event);
+      }
+    });
+    return groups;
   }
 
   @action
@@ -57,7 +81,7 @@ export class EventStore {
   }
 
   loadAllEvents() {
-    fetch(`${this.apiHost}/dev/events`, {
+    fetch(`${this.apiHost}/dev/events?isTagged=true`, {
       headers: {
         ...this.getAuthHeaders(),
       },
