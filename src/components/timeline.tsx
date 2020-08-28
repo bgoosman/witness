@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Observer } from "mobx-react";
-import { Typography, Grid, makeStyles } from "@material-ui/core";
-import fetchJsonp from "fetch-jsonp";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import {
+  Typography,
+  Grid,
+  makeStyles,
+  createStyles,
+  Theme,
+  Box,
+  Paper,
+  Link,
+} from "@material-ui/core";
 import LazyLoad from "react-lazyload";
+import Linkify from "react-linkify";
 
 import { TimelineEventData } from "../models/timeline-event";
-import { EventStore } from "../stores/event-store";
+import dayjs, { Dayjs } from "dayjs";
+import dayjsPluginUTC from "dayjs/plugin/utc";
+import dayjsPluginTimezone from "dayjs/plugin/timezone";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(dayjsPluginUTC);
+dayjs.extend(dayjsPluginTimezone);
+dayjs.extend(customParseFormat);
 
 interface Twitter {
   html: string;
@@ -23,21 +39,78 @@ interface TimelineEventProps {
   event: TimelineEventData;
 }
 
-export const TimelineHeader = (props: TimelineHeaderProps) => (
-  <div className="timeline-header">
-    <Typography variant="h2">{props.resultCount} events</Typography>
-  </div>
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    simpleTweet: {
+      padding: "10px",
+      width: "300px",
+      "& p": {
+        wordBreak: "break-word",
+      },
+    },
+    youtubeEvent: {
+      padding: "15px",
+      width: "380px",
+      "& p": {
+        wordBreak: "break-word",
+      },
+    },
+    timeline: {
+      paddingLeft: "5rem",
+    },
+    timelineRow: {
+      borderLeft: "2px solid black",
+      padding: "0 3em 2em 3em",
+    },
+    timelineDate: {
+      paddingBottom: "1rem",
+    },
+    timelineHeader: {
+      padding: "0 3em 2em 3em",
+      borderLeft: "2px solid black",
+      position: "relative",
+      color: "black",
+      "&::after": {
+        width: "60px",
+        height: "8px",
+        display: "block",
+        top: "1.15rem",
+        position: "absolute",
+        left: "-32px",
+        content: '""',
+        border: "2px solid black",
+        borderRadius: "7px",
+        background: "white",
+      },
+    },
+  })
 );
+
+export const TimelineHeader = (props: TimelineHeaderProps) => {
+  const classes = useStyles();
+  return (
+    <div className={classes.timelineHeader}>
+      <Typography variant="h4" component="h2">
+        {props.resultCount} events
+      </Typography>
+    </div>
+  );
+};
 
 interface TimelineFooterProps {
   label: string;
 }
 
-export const TimelineFooter = (props: TimelineFooterProps) => (
-  <div className="timeline-footer">
-    <Typography variant="h2">{props.label}</Typography>
-  </div>
-);
+export const TimelineFooter = (props: TimelineFooterProps) => {
+  const classes = useStyles();
+  return (
+    <div className={classes.timelineHeader}>
+      <Typography variant="h4" component="h2">
+        {props.label}
+      </Typography>
+    </div>
+  );
+};
 
 interface WidgetsJs {
   load: () => any;
@@ -68,59 +141,84 @@ export const TimelineEvent = (props: TimelineEventProps) => {
       });
   }, []);
 
+  return <div id={`tweet-${tweetId}`}></div>;
+};
+
+export const EventDescription = (props: TimelineEventProps) => {
+  const { city, date, description, state, time } = props.event;
   return (
-    <div className="timeline-event">
-      <div id={`tweet-${tweetId}`}></div>
-    </div>
+    <>
+      <Typography>
+        <Linkify>{description}</Linkify>
+      </Typography>
+      <Typography variant="caption">
+        {date} {city}, {state}
+      </Typography>
+    </>
+  );
+};
+
+export const SimpleTweet = (props: TimelineEventProps) => {
+  const { sourceLink } = props.event;
+  const classes = useStyles();
+
+  return (
+    <Paper className={classes.simpleTweet}>
+      <Link href={sourceLink}>
+        <TwitterIcon />
+      </Link>
+      <EventDescription event={props.event} />
+    </Paper>
   );
 };
 
 export const YouTubeEvent = (props: TimelineEventProps) => {
-  const { event } = props;
-  const { youtubeEmbedLink, description } = event;
+  const { youtubeEmbedLink } = props.event;
+  const classes = useStyles();
 
   return (
-    <div className="timeline-event">
-      <iframe
-        width="350"
-        height="196"
-        src={event.youtubeEmbedLink}
-        frameBorder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-      ></iframe>
-      <Typography variant="body1">{description}</Typography>
-    </div>
+    <LazyLoad once>
+      <Paper className={classes.youtubeEvent}>
+        <iframe
+          width="350"
+          height="196"
+          src={youtubeEmbedLink}
+          frameBorder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        ></iframe>
+        <EventDescription event={props.event} />
+      </Paper>
+    </LazyLoad>
   );
 };
 
 export const Timeline = (props: TimelineProps) => {
   const { eventStore } = props;
+  const classes = useStyles();
 
   return (
     <Observer>
       {() => (
-        <div className={`timeline`}>
+        <div className={classes.timeline}>
           <TimelineHeader resultCount={eventStore.filteredEvents.length} />
           {eventStore.groupedEvents.map((group) => (
-            <div className="timeline-row" key={group.date}>
-              <Typography variant="h6">{group.date}</Typography>
-              {group.events.map((event) => (
-                <React.Fragment key={`${group.date}-${event.id}`}>
-                  <LazyLoad height={200} once>
-                    <Grid container spacing={4}>
-                      <Grid item>
-                        {event.sourceLink && !event.youtubeEmbedLink && (
-                          <TimelineEvent event={event} />
-                        )}
-                        {event.sourceLink && event.youtubeEmbedLink && (
-                          <YouTubeEvent event={event} />
-                        )}
-                      </Grid>
-                    </Grid>
-                  </LazyLoad>
-                </React.Fragment>
-              ))}
-            </div>
+            <Grid container key={group.date} className={classes.timelineRow}>
+              <Typography variant="h3" className={classes.timelineDate}>
+                {group.date}
+              </Typography>
+              <Grid container spacing={2}>
+                {group.events.map((event) => (
+                  <Grid item key={`${group.date}-${event.id}`}>
+                    {event.sourceLink && !event.youtubeEmbedLink && (
+                      <SimpleTweet event={event} />
+                    )}
+                    {event.sourceLink && event.youtubeEmbedLink && (
+                      <YouTubeEvent event={event} />
+                    )}
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
           ))}
           <TimelineFooter label="end of results" />
         </div>

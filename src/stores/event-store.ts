@@ -2,7 +2,6 @@ import { action, computed, observable } from "mobx";
 import shortid from "shortid";
 
 import { TimelineEventData } from "../models/timeline-event";
-import { TimelineEvent } from "../components/timeline";
 
 // TODO: When there is a real database storing events, they should
 // have ids by default. For now, generate hashes of objects if there
@@ -15,8 +14,6 @@ function addIds(events: any[]): TimelineEventData[] {
     });
   });
 }
-
-const events = addIds(require("../events.json"));
 
 interface TimelineGroup {
   date: string;
@@ -36,8 +33,8 @@ export class EventStore {
   get filteredEvents(): Array<TimelineEventData> {
     let result = this.allEvents;
     if (this.searchText) {
-      result = events.filter((event: TimelineEventData) =>
-        event.description.includes(this.searchText)
+      result = result.filter((event: TimelineEventData) =>
+        event.description.toLowerCase().includes(this.searchText.toLowerCase())
       );
     }
     return result;
@@ -45,13 +42,13 @@ export class EventStore {
 
   @computed({ keepAlive: true })
   get groupedEvents(): Array<TimelineGroup> {
-    const filtered = this.filteredEvents;
+    let result = this.filteredEvents;
     let group: TimelineGroup = {
       date: "",
       events: [],
     };
     const groups: Array<TimelineGroup> = [];
-    filtered.forEach((event) => {
+    result.forEach((event) => {
       if (event.date != group.date) {
         group = {
           date: event.date,
