@@ -23,8 +23,7 @@ interface TimelineGroup {
 export class EventStore {
   @observable searchText: string = "";
   @observable allEvents: Array<TimelineEventData> = [];
-  // apiHost: string = "https://tlnunh0fee.execute-api.us-east-1.amazonaws.com";
-  apiHost: string = "";
+  apiHost: string = "https://tlnunh0fee.execute-api.us-east-1.amazonaws.com";
 
   constructor() {
     this.loadAllEvents();
