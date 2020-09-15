@@ -107,7 +107,7 @@ export class EventStore {
   putEvent(event?: TimelineEventData) {
     if (!event) return new Promise(() => {});
     console.log("putting new event", event);
-    event.tagged = true;
+    event.isTagged = true;
     return fetch(`${this.apiHost}/dev/events/${event.id}`, {
       method: "PUT",
       headers: {
